@@ -38,6 +38,9 @@ this.searchedText = ""
         this._loadFilms() 
     })
 }
+_displayDetailForFilm = (idFilm) => {
+ this.props.navigation.navigate("FilmDetail",{idFilm:idFilm})
+}
   _searchTextChanged(text){
     this.searchedText=text
   }
@@ -52,9 +55,10 @@ this.searchedText = ""
     }
   }
   render(){
-   
+    const { film, displayDetailForFilm } = this.props
     return (
-      <View style={styles.main_container}>
+      <View style={styles.main_container}
+      onPress={() => displayDetailForFilm(film.id)}>
          <TextInput onSubmitEditing={()=>this._loadFilms()} onChangeText={(text)=>this._searchTextChanged(text)} style={styles.textinput} placeholder='Titre du film'/>
          <Button style={{height: 50}} title='Rechercher'  onPress={() => this._searchFilms()}/>
          <FlatList
@@ -66,7 +70,7 @@ this.searchedText = ""
                this._loadFilms()
             }
         }}
-          renderItem={({item}) => <FilmItem film={item}/>}
+        renderItem={({item}) => <FilmItem film={item} displayDetailForFilm={this._displayDetailForFilm} />}
         />
          {this._displayLoading()}
       </View>
@@ -75,7 +79,6 @@ this.searchedText = ""
 }
 const styles = StyleSheet.create({
   main_container:{
-    marginTop: 44,
     flex:1
   },
   textinput: {
