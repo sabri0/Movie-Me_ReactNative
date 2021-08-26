@@ -1,80 +1,98 @@
-import React from "react";
-import { StyleSheet,Button, TextInput, View,FlatList, Text,ActivityIndicator } from "react-native";
-import films from '../Helpers/filmsData'
+import React from 'react'
+import { StyleSheet, View, TextInput, Button, Text, FlatList, ActivityIndicator } from 'react-native'
 import FilmItem from './FilmItem'
 import { getFilmsFromApiWithSearchedText } from '../API/TMDBApi'
-class Search extends React.Component{
-constructor(props){
-  super(props)
-  this.page=0
-  this.totalPages=0 
-  this.state={films:[],
-    isLoading:false
-}
-this.searchedText = ""
-}
+import { connect } from 'react-redux'
 
-  _loadFilms(){
-    this.setState({ isLoading:true })
-   if (this.searchedText.length>0) {
-    getFilmsFromApiWithSearchedText(this.searchedText,this.page+1).then(data => {
-      this.page = data.page
-      this.totalPages = data.total_pages
-      this.setState({
-      films: [...this.state.films, ...data.results],
-      isLoading:false
+class Search extends React.Component {
+
+  constructor(props) {
+    super(props)
+    this.searchedText = ""
+    this.page = 0
+    this.totalPages = 0
+    this.state = {
+      films: [],
+      isLoading: false
+    }
+  }
+
+  _loadFilms() {
+    if (this.searchedText.length > 0) {
+      this.setState({ isLoading: true })
+      getFilmsFromApiWithSearchedText(this.searchedText, this.page+1).then(data => {
+          this.page = data.page
+          this.totalPages = data.total_pages
+          this.setState({
+            films: [ ...this.state.films, ...data.results ],
+            isLoading: false
+          })
       })
     }
-    )
-   }
   }
+
+  _searchTextInputChanged(text) {
+    this.searchedText = text
+  }
+
   _searchFilms() {
     this.page = 0
     this.totalPages = 0
     this.setState({
       films: [],
-    }, () => { 
-        console.log("Page : " + this.page + " / TotalPages : " + this.totalPages + " / Nombre de films : " + this.state.films.length)
-        this._loadFilms() 
+    }, () => {
+        this._loadFilms()
     })
-}
-_displayDetailForFilm = (idFilm) => {
- this.props.navigation.navigate("FilmDetail",{idFilm:idFilm})
-}
-  _searchTextChanged(text){
-    this.searchedText=text
   }
+
+  _displayDetailForFilm = (idFilm) => {
+    console.log("Display film with id " + idFilm)
+    this.props.navigation.navigate("FilmDetail", { idFilm: idFilm })
+  }
+
   _displayLoading() {
     if (this.state.isLoading) {
       return (
         <View style={styles.loading_container}>
           <ActivityIndicator size='large' />
-          {/* Le component ActivityIndicator possède une propriété size pour définir la taille du visuel de chargement : small ou large. Par défaut size vaut small, on met donc large pour que le chargement soit bien visible */}
         </View>
       )
     }
   }
-  render(){
-    const { film, displayDetailForFilm } = this.props
+
+  render() {
     return (
-      <View style={styles.main_container}
-      onPress={() => displayDetailForFilm(film.id)}>
-         <TextInput onSubmitEditing={()=>this._loadFilms()} onChangeText={(text)=>this._searchTextChanged(text)} style={styles.textinput} placeholder='Titre du film'/>
-         <Button style={{height: 50}} title='Rechercher'  onPress={() => this._searchFilms()}/>
-         <FlatList
+      <View style={styles.main_container}>
+        <TextInput
+          style={styles.textinput}
+          placeholder='Titre du film'
+          onChangeText={(text) => this._searchTextInputChanged(text)}
+          onSubmitEditing={() => this._searchFilms()}
+        />
+        <Button title='Rechercher' onPress={() => this._searchFilms()}/>
+        <FlatList
           data={this.state.films}
+          extraData={this.props.favoritesFilm}
+          // On utilise la prop extraData pour indiquer à notre FlatList que d’autres données doivent être prises en compte si on lui demande de se re-rendre
           keyExtractor={(item) => item.id.toString()}
+          renderItem={({item}) =>
+            <FilmItem
+              film={item}
+              // Ajout d'une props isFilmFavorite pour indiquer à l'item d'afficher un 🖤 ou non
+              isFilmFavorite={(this.props.favoritesFilm.findIndex(film => film.id === item.id) !== -1) ? true : false}
+              displayDetailForFilm={this._displayDetailForFilm}
+            />
+          }
           onEndReachedThreshold={0.5}
           onEndReached={() => {
-            if (this.page < this.totalPages) { // On vérifie qu'on n'a pas atteint la fin de la pagination (totalPages) avant de charger plus d'éléments
-               this._loadFilms()
-            }
-        }}
-        renderItem={({item}) => <FilmItem film={item} displayDetailForFilm={this._displayDetailForFilm} />}
+              if (this.page < this.totalPages) { // On vérifie également qu'on n'a pas atteint la fin de la pagination (totalPages) avant de charger plus d'éléments
+                 this._loadFilms()
+              }
+          }}
         />
-         {this._displayLoading()}
+        {this._displayLoading()}
       </View>
-  )
+    )
   }
 }
 const styles = StyleSheet.create({
@@ -100,4 +118,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center'
   }
 })
-export default Search
+const mapStateToProps = state => {
+  return {
+    favoritesFilm: state.favoritesFilm
+  }
+}
+
+export default connect(mapStateToProps)(Search)
