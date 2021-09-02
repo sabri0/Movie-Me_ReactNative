@@ -1,7 +1,10 @@
+// Components/FilmItem.js
+
 import React from 'react'
-import { StyleSheet, View, Text, Image, TouchableOpacity, Dimensions, Animated } from 'react-native'
+import { StyleSheet, View, Text, Image, TouchableOpacity } from 'react-native'
 import { getImageFromApi } from '../API/TMDBApi'
 import FadeIn from '../Animations/FadeIn'
+
 class FilmItem extends React.Component {
 
   _displayFavoriteImage() {
@@ -10,7 +13,7 @@ class FilmItem extends React.Component {
       return (
         <Image
           style={styles.favorite_image}
-          source={require('../images/ic_favorite.png')}
+          source={require('../Images/ic_favorite.png')}
         />
       )
     }
@@ -54,8 +57,7 @@ const styles = StyleSheet.create({
   image: {
     width: 120,
     height: 180,
-    margin: 5,
-    backgroundColor: 'gray'
+    margin: 5
   },
   content_container: {
     flex: 1,
