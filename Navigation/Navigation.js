@@ -1,13 +1,13 @@
+// Navigation/Navigations.js
 
-import React from 'react' // N'oubliez pas l'import de React ici. On en a besoin pour rendre nos components React Native Image ! 
-import { StyleSheet, Image } from 'react-native';
-import { createAppContainer } from "react-navigation";
-import { createStackNavigator } from "react-navigation-stack";
-import { createBottomTabNavigator } from 'react-navigation-tabs';
-import Favorites from '../Components/Favorites'
+import React from 'react'
+import { StyleSheet, Image } from 'react-native'
+import { createStackNavigator, createBottomTabNavigator, createAppContainer } from 'react-navigation'
 import Search from '../Components/Search'
-import FilmDetail from "../Components/FilmDetail";
-import Test from '../Components/Test'
+import FilmDetail from '../Components/FilmDetail'
+import Favorites from '../Components/Favorites'
+import News from '../Components/News'
+import Seen from '../Components/Seen'
 
 const SearchStackNavigator = createStackNavigator({
   Search: {
@@ -20,6 +20,7 @@ const SearchStackNavigator = createStackNavigator({
     screen: FilmDetail
   }
 })
+
 const FavoritesStackNavigator = createStackNavigator({
   Favorites: {
     screen: Favorites,
@@ -32,18 +33,39 @@ const FavoritesStackNavigator = createStackNavigator({
   }
 })
 
+const NewsStackNavigator = createStackNavigator({
+  News: {
+    screen: News,
+    navigationOptions: {
+      title: 'Les Derniers Films',
+    },
+  },
+  FilmDetail: {
+    screen: FilmDetail,
+  }
+})
+
+const SeenStackNavigator = createStackNavigator({
+  Seen: {
+    screen: Seen,
+    navigationOptions: {
+      title: 'Mes Films Vus',
+    },
+  },
+  FilmDetail: {
+    screen: FilmDetail,
+  }
+})
+
 const MoviesTabNavigator = createBottomTabNavigator(
   {
-    // Test: {
-    //   screen: Test
-    // },
     Search: {
       screen: SearchStackNavigator,
       navigationOptions: {
-        tabBarIcon: () => { // On définit le rendu de nos icônes par les images récemment ajoutés au projet
+        tabBarIcon: () => {
           return <Image
-            source={require('../images/ic_search.png')}
-            style={styles.icon}/> // On applique un style pour les redimensionner comme il faut
+            source={require('../Images/ic_search.png')}
+            style={styles.icon}/>
         }
       }
     },
@@ -52,7 +74,27 @@ const MoviesTabNavigator = createBottomTabNavigator(
       navigationOptions: {
         tabBarIcon: () => {
           return <Image
-            source={require('../images/ic_favorite.png')}
+            source={require('../Images/ic_favorite.png')}
+            style={styles.icon}/>
+        }
+      }
+    },
+    News: {
+      screen: NewsStackNavigator,
+      navigationOptions: {
+        tabBarIcon: () => {
+          return <Image
+            source={require('../Images/ic_fiber_new.png')}
+            style={styles.icon}/>
+        }
+      }
+    },
+    Seen: {
+      screen: SeenStackNavigator,
+      navigationOptions: {
+        tabBarIcon: () => {
+          return <Image
+            source={require('../Images/ic_check.png')}
             style={styles.icon}/>
         }
       }
@@ -60,10 +102,10 @@ const MoviesTabNavigator = createBottomTabNavigator(
   },
   {
     tabBarOptions: {
-      activeBackgroundColor: '#DDDDDD', // Couleur d'arrière-plan de l'onglet sélectionné
-      inactiveBackgroundColor: '#FFFFFF', // Couleur d'arrière-plan des onglets non sélectionnés
-      showLabel: false, // On masque les titres
-      showIcon: true // On informe le TabNavigator qu'on souhaite afficher les icônes définis
+      activeBackgroundColor: '#DDDDDD',
+      inactiveBackgroundColor: '#FFFFFF',
+      showLabel: false,
+      showIcon: true
     }
   }
 )

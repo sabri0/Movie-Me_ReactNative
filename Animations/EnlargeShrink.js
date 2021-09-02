@@ -23,8 +23,7 @@ class EnlargeShrink extends React.Component {
     Animated.spring(
       this.state.viewSize,
       {
-        toValue: this._getSize(),
-        useNativeDriver: false,
+        toValue: this._getSize()
       }
     ).start()
   }
